@@ -76,7 +76,10 @@ def analizar_resultados(df):
 def consulta(pregunta):
     global ultima_sql
     sql = obtener_sql_de_gemini(pregunta)
-    ultima_sql = sql
+    ultima_sql = sql  # guardamos el último SQL generado
+
+    st.write("🧾 Consulta generada por Gemini:")
+    st.code(sql, language='sql')  # <-- AGREGAR ESTO PARA VER EL SQL EN PANTALLA
 
     if sql:
         df = ejecutar_sql(sql)
@@ -84,3 +87,4 @@ def consulta(pregunta):
         return df, analisis
     else:
         return pd.DataFrame(), "No se pudo generar una consulta SQL válida."
+
