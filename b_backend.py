@@ -30,6 +30,10 @@ def obtener_sql_de_gemini(pregunta):
     - NOMBRE_SOLICITUD: estado de la solicitud (Cerrada, Asignada, Pendiente Asignar, En sitio).
     - FECHA_SOLICITUD: fecha de la solicitud para ejecutar la orden.
     - PRECIO_PARAM: valor económico parametrizado.
+
+    IMPORTANTE:
+    Cuando filtres por estado (por ejemplo: NOMBRE_SOLICITUD = 'Cerrada'), usa esta forma exacta:
+    CONVERT(NOMBRE_SOLICITUD USING utf8mb4) COLLATE utf8mb4_general_ci = 'Cerrada'
     
     Solo usa esa vista. No inventes otras tablas como 'Facturas' ni 'Solicitudes'.
     """
@@ -78,7 +82,7 @@ def consulta(pregunta):
     sql = obtener_sql_de_gemini(pregunta)
     ultima_sql = sql  # guardamos el último SQL generado
 
-    st.write("🧾 Consulta generada por Gemini:")
+    st.write("🧾 Consulta generada por la IA:")
     st.code(sql, language='sql')  # <-- AGREGAR ESTO PARA VER EL SQL EN PANTALLA
 
     if sql:
@@ -87,4 +91,5 @@ def consulta(pregunta):
         return df, analisis
     else:
         return pd.DataFrame(), "No se pudo generar una consulta SQL válida."
+
 
