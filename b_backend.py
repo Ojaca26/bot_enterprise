@@ -9,13 +9,13 @@ genai.configure(api_key=st.secrets["general"]["api_key"])
 model = genai.GenerativeModel("gemini-1.5-flash")
 chat = model.start_chat()
 
-# Configuración de conexión a base de datos
+# Datos de conexión a MySQL
 db_config = {
-    'host': '82.197.82.125',
-    'database': 'u241824557_oml',
-    'user': 'u241824557_than_oml',
-    'password': '1541100Luis$',
-    'port': 3306
+    'host': st.secrets["mysql"]["host"],
+    'database': st.secrets["mysql"]["database"],
+    'user': st.secrets["mysql"]["user"],
+    'password': st.secrets["mysql"]["password"],
+    'port': st.secrets["mysql"]["port"]
 }
 
 # Variable global para guardar el SQL
@@ -82,4 +82,5 @@ def consulta(pregunta):
         return df, analisis
     else:
         return pd.DataFrame(), "No se pudo generar una consulta SQL válida."
+
 
