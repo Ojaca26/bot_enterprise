@@ -1,10 +1,11 @@
 import re
 import mysql.connector
 import pandas as pd
+import streamlit as st
 import google.generativeai as genai
 
 # Configura la API de Gemini
-genai.configure(api_key=st.secrets["gemini"]["api_key"])
+genai.configure(api_key=st.secrets["general"]["api_key"])
 model = genai.GenerativeModel("gemini-1.5-flash")
 chat = model.start_chat()
 
@@ -81,3 +82,4 @@ def consulta(pregunta):
         return df, analisis
     else:
         return pd.DataFrame(), "No se pudo generar una consulta SQL válida."
+
