@@ -4,12 +4,12 @@ import pandas as pd
 import streamlit as st
 import google.generativeai as genai
 
-# Configura la API de Gemini
+# Configurar API de Gemini desde secrets.toml
 genai.configure(api_key=st.secrets["general"]["api_key"])
 model = genai.GenerativeModel("gemini-1.5-flash")
 chat = model.start_chat()
 
-# Datos de conexión a MySQL
+# Configuración base de datos desde secrets.toml
 db_config = {
     'host': st.secrets["mysql"]["host"],
     'database': st.secrets["mysql"]["database"],
@@ -18,10 +18,10 @@ db_config = {
     'port': st.secrets["mysql"]["port"]
 }
 
-# Variable global para guardar el SQL
+# Guarda el último SQL generado por la IA
 ultima_sql = ""
 
-# Genera la consulta SQL desde lenguaje natural
+# Función para generar SQL desde lenguaje natural
 def obtener_sql_de_gemini(pregunta):
     estructura_vista = """
     Realiza todas las consultas exclusivamente sobre la vista llamada OML_Business_Intelligence.
@@ -30,7 +30,7 @@ def obtener_sql_de_gemini(pregunta):
     - NOMBRE_SOLICITUD: estado de la solicitud (Cerrada, Asignada, Pendiente Asignar, En sitio).
     - FECHA_SOLICITUD: fecha de la solicitud para ejecutar la orden.
     - PRECIO_PARAM: valor económico parametrizado.
-        
+    
     Solo usa esa vista. No inventes otras tablas como 'Facturas' ni 'Solicitudes'.
     """
 
@@ -39,10 +39,11 @@ def obtener_sql_de_gemini(pregunta):
     match = re.search(r"(SELECT\s.+?;)", response.text, re.IGNORECASE | re.DOTALL)
     return match.group(1).strip() if match else None
 
-# Ejecutar el SQL generado
+# Función para ejecutar el SQL generado
 def ejecutar_sql(query):
     if not query:
         return pd.DataFrame()
+    
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
     cursor.execute(query)
@@ -53,28 +54,29 @@ def ejecutar_sql(query):
     conn.close()
     return df
 
-# Generar análisis con IA
+# Función para analizar los resultados con IA
 def analizar_resultados(df):
     if df.empty:
         return "No se encontraron resultados."
+
     texto_tabla = df.to_string(index=False)
     prompt = f"""
     A continuación tienes los resultados de una consulta a una base de datos:
 
     {texto_tabla}
 
-    1. Muestra los datos en tabla clara.
+    1. Muestra los datos en forma de tabla clara.
     2. Da un análisis experto de los resultados.
     3. Ofrece una recomendación útil para el negocio.
     """
     response = chat.send_message(prompt)
     return response.text
 
-# Función principal que se llama desde app.py
+# Función principal llamada desde app.py
 def consulta(pregunta):
     global ultima_sql
     sql = obtener_sql_de_gemini(pregunta)
-    ultima_sql = sql  # guardamos el último SQL generado
+    ultima_sql = sql
 
     if sql:
         df = ejecutar_sql(sql)
@@ -82,5 +84,3 @@ def consulta(pregunta):
         return df, analisis
     else:
         return pd.DataFrame(), "No se pudo generar una consulta SQL válida."
-
-
