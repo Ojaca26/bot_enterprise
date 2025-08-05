@@ -1,0 +1,4 @@
+streamlit
+google-generativeai
+mysql-connector-python
+pandas
